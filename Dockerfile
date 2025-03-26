@@ -5,5 +5,5 @@ COPY . .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-EXPOSE 8501
-CMD ["streamlit", "run", "online_server.py", "--server.port=8501", "--server.enableCORS=false"]
+EXPOSE 8080
+CMD ["sh", "-c", "streamlit run online_server.py --server.port=$PORT --server.enableCORS=false"]
