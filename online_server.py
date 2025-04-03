@@ -55,12 +55,14 @@ transform = transforms.Compose([
     transforms.ToTensor()
 ])
 
-def predict(image):
+def predict(image, threshold=0.35):  # можно задать любой порог
     image = transform(image).unsqueeze(0).to(DEVICE)
     with torch.no_grad():
         output = model(image)
         probs = torch.nn.functional.softmax(output, dim=1)
         conf, pred = torch.max(probs, 1)
+    if conf.item() < threshold:
+        return None, conf.item()
     return CLASS_NAMES[pred.item()], conf.item()
 
 # === UI ===
@@ -74,5 +76,8 @@ if uploaded_file:
     st.image(image, caption="Загруженное изображение", use_column_width=True)
 
     label, confidence = predict(image)
-    st.markdown(f"### 🔍 Предсказание: **{label}**")
-    st.markdown(f"Уверенность: `{confidence:.2f}`")
+    if label is None:
+        st.markdown("❌ Не могу определить сигару по фото.")
+    else:
+        st.markdown(f"### 🔍 Предсказание: **{label}**")
+        st.markdown(f"Уверенность: `{confidence:.2f}`")
